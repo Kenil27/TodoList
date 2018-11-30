@@ -2,9 +2,13 @@
   <div class="container">
     <p class="header">This is a sample Todo List</p>
     <div class="todo">
-
-        <textarea type="text" v-model="message" class="list" name="list" required></textarea>
-        <p> {{ message }} </p> 
+        <input type="text" class="list" v-model="pushItem"  @keyup.enter="pushInput" />
+        <div>
+          <p v-for="note in notes" :key="note" class="list-item">
+            <input type="checkbox" id="checkbox" v-model="note.checked">
+            {{note.title}}
+          </p><br>
+        </div>
     </div> 
   </div>
 </template>
@@ -14,9 +18,19 @@
 export default {
   data() {
     return {
-    message : ' '
-  }
-  }
+      pushItem: '',
+      notes : [
+        {title: 'First note', checked: true},
+        {title: 'Second item',checked: false},
+        {title: 'Third note', checked: false}]
+    }
+  },
+  methods: {
+    pushInput(){
+     this.notes.push({title: this.pushItem, checked: false})
+     this.pushItem= '';
+    }
+  },
 };
 </script>
 
@@ -34,7 +48,11 @@ export default {
 .todo {
   margin :0 auto;
   width: 50%;
- 
+}
+.list{
+border: 1px solid black;
+height: 40px;
+padding-left: 10px;
 }
 textarea {
   width: 90%;
