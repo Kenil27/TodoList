@@ -1,7 +1,7 @@
 const pkg = require('./package')
 
 module.exports = {
-  mode: 'spa',
+  // mode: 'spa',
 
   /*
   ** Headers of the page
@@ -60,5 +60,7 @@ module.exports = {
       
     }
   },
-  buildDir: 'docs'
+  generate: {
+    dir: 'docs'
+  }
 }
