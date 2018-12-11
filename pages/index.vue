@@ -4,9 +4,10 @@
     <div class="todo">
         <input type="text" class="list" v-model="pushItem"  @keyup.enter="pushInput" />
         <div>
-          <p v-for="note in notes" :key="note" class="list-item">
-            <input type="checkbox" id="checkbox" v-model="note.checked">
+          <p v-for="note in notes" :key="note.title" class="list-item">
+            <input type="checkbox" id="checkbox" v-model="note.checked" v-on:change="toggleNote">
             {{note.title}}
+            <button @click="removeItem(note)" type="button">x</button>
           </p><br>
         </div>
     </div> 
@@ -19,16 +20,34 @@ export default {
   data() {
     return {
       pushItem: '',
-      notes : [
-        {title: 'First note', checked: true},
-        {title: 'Second item',checked: false},
-        {title: 'Third note', checked: false}]
+      notes : []
+    }
+  },
+  mounted() {
+    
+    const str = localStorage.getItem('myTodos')
+    if (str) { 
+      const parsedArr = JSON.parse(str)
+      this.notes = parsedArr
+    } else {
+      this.notes = []
     }
   },
   methods: {
     pushInput(){
-     this.notes.push({title: this.pushItem, checked: false})
-     this.pushItem= '';
+      this.notes.push({title: this.pushItem, checked: false})
+      this.pushItem= '';
+      this.saveNotesToStorage()
+    },
+    toggleNote(e) {
+      this.saveNotesToStorage()
+    },
+    removeItem(note) {
+      this.notes.splice(this.notes.indexOf(note),1)
+      this.saveNotesToStorage()
+    },
+    saveNotesToStorage() {
+      localStorage.setItem('myTodos', JSON.stringify(this.notes));
     }
   },
 };
