@@ -1,14 +1,14 @@
 <template>
   <div class="container">
-    <p class="header">This is a sample Todo List</p>
+    <h1 class="header"> My Todo List</h1>
     <div class="todo">
-        <input type="text" class="list" v-model="pushItem"  @keyup.enter="pushInput" />
-        <div>
+        <input type="text" placeholder="+  Add a to-do..." class="list" v-model="pushItem"  @keyup.enter="pushInput" />
+        <br><br><div class="all-todos">
           <p v-for="note in notes" :key="note.title" class="list-item">
-            <input type="checkbox" id="checkbox" v-model="note.checked" v-on:change="toggleNote">
+            <input type="checkbox" id="checkbox" class="checkmark" v-model="note.checked" v-on:change="toggleNote">
             {{note.title}}
-            <button @click="removeItem(note)" type="button">x</button>
-          </p><br>
+            <button @click="removeItem(note)" class="btn" type="button">x</button>
+          </p> 
         </div>
     </div> 
   </div>
@@ -24,7 +24,6 @@ export default {
     }
   },
   mounted() {
-    
     const str = localStorage.getItem('myTodos')
     if (str) { 
       const parsedArr = JSON.parse(str)
@@ -55,29 +54,43 @@ export default {
 
 <style>
 .container {
-  width: 100%;
   height: 100vh;
-  
+  background-color:cornsilk;
 }
 .header {
   text-align: center;
   margin: 20px 20px;
-  font-size: 26px;
+  font-size: 36px;
+  font-family: 'Times New Roman', Times, serif;
+  color: blue;
 }
+
 .todo {
-  margin :0 auto;
-  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
 }
 .list{
-border: 1px solid black;
+border: 1px solid aquamarine;
+border-radius: 15px;
 height: 40px;
 padding-left: 10px;
+background-color: aquamarine;
+width: 35%;
 }
-textarea {
-  width: 90%;
-  margin: 10px;
-  padding: 5px;
-  border-radius: 4px;
-  border: 1px solid #eee;
+.all-todos{
+  width: 35%;
+}
+.list-item{
+  background-color:white;
+  margin-bottom: 10px;
+  height: 30px;
+}
+.btn{
+  
+  float: right;
+  background: transparent;
+  
 }
 </style>
