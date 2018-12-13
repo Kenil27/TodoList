@@ -2,8 +2,6 @@
   <div class="container">
     <h1 class="header">My Todo List</h1>
     <div class="todo">
-      <p class="date">{{today}}</p>
-      <br>
       <input
         type="text"
         placeholder="+  Add a to-do..."
@@ -17,8 +15,9 @@
       <div class="all-todos">
         <p v-for="note in notes" :key="note.title" class="list-item">
           <input type="checkbox" id="checkbox" v-model="note.checked" v-on:change="toggleNote">
-          {{note.title}}
+          {{note.title}} 
           <a @click="removeItem(note)" class="close">x</a>
+          <br> <span class="date">{{today}}</span> 
         </p>
       </div>
     </div>
@@ -32,7 +31,7 @@ export default {
     return {
       pushItem: "",
       notes: [],
-      today: new Date().toDateString()
+      today: new Date().toLocaleDateString()
     };
   },
   mounted() {
@@ -65,6 +64,7 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css?family=Alegreya');
 .container {
   height: 100vh;
   background-color: cornsilk;
@@ -76,8 +76,7 @@ export default {
   font-family: "Times New Roman", Times, serif;
   color: blue;
 }
-.date {
-}
+
 .todo {
   display: flex;
   flex-direction: column;
@@ -91,28 +90,34 @@ export default {
   background-color: aquamarine;
   width: 35%;
 }
-@media only screen and (max-width: 320px) {
-.list{
-  width: 75%;
-  background-color: bisque;
-}
+@media only screen and (max-width: 600px) {
+  .list {
+    width: 75%;
+  }
 }
 .all-todos {
   width: 35%;
 }
-@media only screen and (max-width: 320px) {
-.all-todos{
-  width: 75%;
-}
+@media only screen and (max-width: 600px) {
+  .all-todos {
+    width: 75%;
+  }
 }
 .list-item {
   background-color: white;
-  margin-bottom: 10px;
-  height: 30px;
+  margin-bottom: 15px;
+  height: 45px;
+  font-size: 16px;
+  
 }
 #checkbox {
   width: 15px;
   height: 15px;
+}
+.date{
+  font-size: 12px;
+  padding-left: 20px;
+  opacity: 0.7;
 }
 .close {
   opacity: 0.4;
