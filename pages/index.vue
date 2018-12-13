@@ -91,8 +91,19 @@ export default {
   background-color: aquamarine;
   width: 35%;
 }
+@media only screen and (max-width: 320px) {
+.list{
+  width: 75%;
+  background-color: bisque;
+}
+}
 .all-todos {
   width: 35%;
+}
+@media only screen and (max-width: 320px) {
+.all-todos{
+  width: 75%;
+}
 }
 .list-item {
   background-color: white;
