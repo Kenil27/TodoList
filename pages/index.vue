@@ -13,11 +13,14 @@
       <br>
 
       <div class="all-todos">
-        <p v-for="note in notes" :key="note.title" class="list-item">
-          <input type="checkbox" id="checkbox" v-model="note.checked" v-on:change="toggleNote">
+        <p v-for="note in notes" :key="note.title" >
+          <label class="list-item">
+          <input type="checkbox" v-model="note.checked" v-on:change="toggleNote">
+          <span class="checkmark"></span>
           {{note.title}} 
           <a @click="removeItem(note)" class="close">x</a>
           <br> <span class="date">{{today}}</span> 
+          </label>
         </p>
       </div>
     </div>
@@ -30,12 +33,19 @@ export default {
   data() {
     return {
       pushItem: "",
-      notes: [],
+      notes: [
+        { title : 'Learn JavaScript' , checked: false},
+        { title : 'Make a To-do List', checked : true}
+      ],
       today: new Date().toLocaleDateString()
     };
   },
   mounted() {
-    const str = localStorage.getItem("myTodos");
+    let str = localStorage.getItem("myTodos");
+    const strInitial = JSON.stringify(this.notes);
+    if(strInitial){
+      str = strInitial;
+    }
     if (str) {
       const parsedArr = JSON.parse(str);
       this.notes = parsedArr;
@@ -85,10 +95,10 @@ export default {
 .list {
   border: 1px solid aquamarine;
   border-radius: 15px;
-  height: 40px;
+  height: 50px;
   padding-left: 10px;
   background-color: aquamarine;
-  width: 35%;
+  width: 50%;
 }
 @media only screen and (max-width: 600px) {
   .list {
@@ -96,7 +106,7 @@ export default {
   }
 }
 .all-todos {
-  width: 35%;
+  width: 50%;
 }
 @media only screen and (max-width: 600px) {
   .all-todos {
@@ -104,19 +114,76 @@ export default {
   }
 }
 .list-item {
+  display: block;
   background-color: white;
-  margin-bottom: 15px;
-  height: 45px;
-  font-size: 16px;
-  
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 18px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
-#checkbox {
-  width: 15px;
-  height: 15px;
+
+/* Hide the browser's default checkbox */
+.list-item input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 40px;
+  width: 35%;
+  margin-left: -60px;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  height: 20px;
+  width: 20px;
+  background-color:white;
+  border: 1px solid lightgray;
+}
+
+/* On mouse-over, add a grey background color */
+.list-item:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.list-item input:checked ~ .checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.list-item input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.list-item .checkmark:after {
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
 }
 .date{
   font-size: 12px;
-  padding-left: 20px;
   opacity: 0.7;
 }
 .close {
