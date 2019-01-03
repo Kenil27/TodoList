@@ -13,13 +13,14 @@
       <br>
 
       <div class="all-todos">
-        <p v-for="note in notes" :key="note.title" >
+        <p v-for="note in notes" :key="note.title">
           <label class="list-item">
-          <input type="checkbox" v-model="note.checked" v-on:change="toggleNote">
-          <span class="checkmark"></span>
-          {{note.title}} 
-          <a @click="removeItem(note)" class="close">x</a>
-          <br> <span class="date">{{today}}</span> 
+            <input type="checkbox" v-model="note.checked" v-on:change="toggleNote">
+            <span class="checkmark"></span>
+            {{note.title}}
+            <a @click="removeItem(note)" class="close">x</a>
+            <br>
+            <span class="date">{{today}}</span>
           </label>
         </p>
       </div>
@@ -29,29 +30,34 @@
 
 
 <script>
+const initialNotes= [
+        { title: "Learn JavaScript", checked: false },
+        { title: "Make a To-do List", checked: true }
+      ]
+
 export default {
   data() {
     return {
       pushItem: "",
-      notes: [
-        { title : 'Learn JavaScript' , checked: false},
-        { title : 'Make a To-do List', checked : true}
-      ],
+      notes: [],
       today: new Date().toLocaleDateString()
     };
   },
   mounted() {
-    let str = localStorage.getItem("myTodos");
-    const strInitial = JSON.stringify(this.notes);
-    if(strInitial){
-      str = strInitial;
-    }
-    if (str) {
-      const parsedArr = JSON.parse(str);
+    debugger
+    const isFirstVisitedJSON = localStorage.getItem("isFirstVisited");
+    const isFirstVisited = JSON.parse(isFirstVisitedJSON);
+    
+    if (isFirstVisited) {
+      const str = localStorage.getItem("myTodos")
+      var  parsedArr = JSON.parse(str);
       this.notes = parsedArr;
     } else {
-      this.notes = [];
+      this.notes = initialNotes;
+      localStorage.setItem("isFirstVisited", "true");
     }
+    
+    
   },
   methods: {
     pushInput() {
@@ -74,7 +80,7 @@ export default {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css?family=Alegreya');
+@import url("https://fonts.googleapis.com/css?family=Alegreya");
 .container {
   height: 100vh;
   background-color: cornsilk;
@@ -144,7 +150,7 @@ export default {
   left: 5px;
   height: 20px;
   width: 20px;
-  background-color:white;
+  background-color: white;
   border: 1px solid lightgray;
 }
 
@@ -155,7 +161,7 @@ export default {
 
 /* When the checkbox is checked, add a blue background */
 .list-item input:checked ~ .checkmark {
-  background-color: #2196F3;
+  background-color: #2196f3;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
@@ -182,7 +188,7 @@ export default {
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
 }
-.date{
+.date {
   font-size: 12px;
   opacity: 0.7;
 }
