@@ -73,5 +73,6 @@ module.exports = {
   },
   router: {
     base: '/TodoList/'
-  }
+  },
+  plugins: [{ src : '~/plugins/fire.js' , ssr: false}] 
 }

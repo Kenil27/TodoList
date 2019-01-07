@@ -9,9 +9,24 @@
         v-model="pushItem"
         @keyup.enter="pushInput"
       >
+      
+      <button class="fire" @click="getData">Get Records from firestore</button>
       <br>
+      <div class="all-todos">
+        <p v-for="data in myData" :key="data.id">
+          <label class="list-item">
+            <input type="checkbox" v-model="data.checked" v-on:change="toggleFireNote(data.id, data)">
+            <span class="checkmark"></span>
+            {{data.title}}
+               <a @click="removeFireItem(data.id, data)" class="close">x</a>
+            <br>
+            <span class="date">{{today}}</span>
+          </label>
+        </p>
+      </div>
       <br>
-
+      <br> <hr>
+      <p>Below Records are stored in localStorage</p> <br>
       <div class="all-todos">
         <p v-for="note in notes" :key="note.title">
           <label class="list-item">
@@ -30,43 +45,84 @@
 
 
 <script>
-const initialNotes= [
-        { title: "Learn JavaScript", checked: false },
-        { title: "Make a To-do List", checked: true }
-      ]
+import db from "~/plugins/fire.js";
+
+const initialNotes = [
+  { title: "Learn JavaScript", checked: false },
+  { title: "Make a To-do List", checked: true }
+];
 
 export default {
   data() {
     return {
       pushItem: "",
       notes: [],
+      myData: [],
       today: new Date().toLocaleDateString()
     };
   },
   mounted() {
-    debugger
     const isFirstVisitedJSON = localStorage.getItem("isFirstVisited");
     const isFirstVisited = JSON.parse(isFirstVisitedJSON);
-    
+
     if (isFirstVisited) {
-      const str = localStorage.getItem("myTodos")
-      var  parsedArr = JSON.parse(str);
+      const str = localStorage.getItem("myTodos");
+      var parsedArr = JSON.parse(str);
       this.notes = parsedArr;
     } else {
       this.notes = initialNotes;
       localStorage.setItem("isFirstVisited", "true");
     }
-    
-    
   },
   methods: {
     pushInput() {
       this.notes.push({ title: this.pushItem, checked: false });
-      this.pushItem = "";
       this.saveNotesToStorage();
+
+      db.collection("todoList").add({
+        title: this.pushItem,
+        checked: false
+      });
+      this.pushItem = "";
+    },
+    getData() {
+      db.collection("todoList")
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(doc => {
+            this.myData.push({
+              id: doc.id,
+              title: doc.data().title,
+              checked: doc.data().checked
+            });
+            console.log(this.myData);
+          });
+        });
+    },
+    toggleFireNote(id, data){
+      // Create a reference to the SF doc.
+      var updatedData = db.collection("todoList").doc(id);
+
+return db.runTransaction(function(transaction) {
+    return transaction.get(updatedData).then(function(doc) {
+        if (!doc.exists) {
+            throw "Document does not exist!";
+        }
+
+         var newChecked = !doc.data().checked;
+        transaction.update(updatedData, { checked: newChecked });
+    });
+})
+
     },
     toggleNote(e) {
       this.saveNotesToStorage();
+    },
+    removeFireItem(id, data){
+      db.collection("todoList").doc(id).delete().then(function() {
+    console.log("Document successfully deleted!");
+}),
+this.myData.splice(this.myData.indexOf(data), 1);
     },
     removeItem(note) {
       this.notes.splice(this.notes.indexOf(note), 1);
@@ -201,5 +257,18 @@ export default {
 .close:hover {
   opacity: 1;
   cursor: pointer;
+}
+.fire{
+  background-color: rgb(238, 66, 66); 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    cursor: pointer; 
+    font-weight: 500;
 }
 </style>
