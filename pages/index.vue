@@ -9,24 +9,10 @@
         v-model="pushItem"
         @keyup.enter="pushInput"
       >
-      
-      <button class="fire" @click="getData">Get Records from firestore</button>
       <br>
-      <div class="all-todos">
-        <p v-for="data in myData" :key="data.id">
-          <label class="list-item">
-            <input type="checkbox" v-model="data.checked" v-on:change="toggleFireNote(data.id, data)">
-            <span class="checkmark"></span>
-            {{data.title}}
-               <a @click="removeFireItem(data.id, data)" class="close">x</a>
-            <br>
-            <span class="date">{{today}}</span>
-          </label>
-        </p>
-      </div>
+      <h4>Data Stored in localStorage</h4>
       <br>
-      <br> <hr>
-      <p>Below Records are stored in localStorage</p> <br>
+      <br>
       <div class="all-todos">
         <p v-for="note in notes" :key="note.title">
           <label class="list-item">
@@ -39,13 +25,15 @@
           </label>
         </p>
       </div>
+      <br>
+      <h4 class="fire">Click <nuxt-link to="firebase">here</nuxt-link> to see to-do list for firebase</h4>
     </div>
   </div>
 </template>
 
 
 <script>
-import db from "~/plugins/fire.js";
+import { firebase, auth, db } from "~/plugins/fire.js";
 
 const initialNotes = [
   { title: "Learn JavaScript", checked: false },
@@ -57,11 +45,11 @@ export default {
     return {
       pushItem: "",
       notes: [],
-      myData: [],
       today: new Date().toLocaleDateString()
     };
   },
   mounted() {
+
     const isFirstVisitedJSON = localStorage.getItem("isFirstVisited");
     const isFirstVisited = JSON.parse(isFirstVisitedJSON);
 
@@ -73,56 +61,16 @@ export default {
       this.notes = initialNotes;
       localStorage.setItem("isFirstVisited", "true");
     }
+    
   },
   methods: {
     pushInput() {
       this.notes.push({ title: this.pushItem, checked: false });
-      this.saveNotesToStorage();
-
-      db.collection("todoList").add({
-        title: this.pushItem,
-        checked: false
-      });
+      this.saveNotesToStorage(),
       this.pushItem = "";
-    },
-    getData() {
-      db.collection("todoList")
-        .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(doc => {
-            this.myData.push({
-              id: doc.id,
-              title: doc.data().title,
-              checked: doc.data().checked
-            });
-            console.log(this.myData);
-          });
-        });
-    },
-    toggleFireNote(id, data){
-      // Create a reference to the SF doc.
-      var updatedData = db.collection("todoList").doc(id);
-
-return db.runTransaction(function(transaction) {
-    return transaction.get(updatedData).then(function(doc) {
-        if (!doc.exists) {
-            throw "Document does not exist!";
-        }
-
-         var newChecked = !doc.data().checked;
-        transaction.update(updatedData, { checked: newChecked });
-    });
-})
-
     },
     toggleNote(e) {
       this.saveNotesToStorage();
-    },
-    removeFireItem(id, data){
-      db.collection("todoList").doc(id).delete().then(function() {
-    console.log("Document successfully deleted!");
-}),
-this.myData.splice(this.myData.indexOf(data), 1);
     },
     removeItem(note) {
       this.notes.splice(this.notes.indexOf(note), 1);
@@ -134,141 +82,3 @@ this.myData.splice(this.myData.indexOf(data), 1);
   }
 };
 </script>
-
-<style>
-@import url("https://fonts.googleapis.com/css?family=Alegreya");
-.container {
-  height: 100vh;
-  background-color: cornsilk;
-}
-.header {
-  text-align: center;
-  margin: 20px 20px;
-  font-size: 36px;
-  font-family: "Times New Roman", Times, serif;
-  color: blue;
-}
-
-.todo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.list {
-  border: 1px solid aquamarine;
-  border-radius: 15px;
-  height: 50px;
-  padding-left: 10px;
-  background-color: aquamarine;
-  width: 50%;
-}
-@media only screen and (max-width: 600px) {
-  .list {
-    width: 75%;
-  }
-}
-.all-todos {
-  width: 50%;
-}
-@media only screen and (max-width: 600px) {
-  .all-todos {
-    width: 75%;
-  }
-}
-.list-item {
-  display: block;
-  background-color: white;
-  position: relative;
-  padding-left: 35px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  font-size: 18px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-/* Hide the browser's default checkbox */
-.list-item input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 40px;
-  width: 35%;
-  margin-left: -60px;
-}
-
-/* Create a custom checkbox */
-.checkmark {
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  height: 20px;
-  width: 20px;
-  background-color: white;
-  border: 1px solid lightgray;
-}
-
-/* On mouse-over, add a grey background color */
-.list-item:hover input ~ .checkmark {
-  background-color: #ccc;
-}
-
-/* When the checkbox is checked, add a blue background */
-.list-item input:checked ~ .checkmark {
-  background-color: #2196f3;
-}
-
-/* Create the checkmark/indicator (hidden when not checked) */
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
-}
-
-/* Show the checkmark when checked */
-.list-item input:checked ~ .checkmark:after {
-  display: block;
-}
-
-/* Style the checkmark/indicator */
-.list-item .checkmark:after {
-  left: 7px;
-  top: 3px;
-  width: 5px;
-  height: 10px;
-  border: solid white;
-  border-width: 0 3px 3px 0;
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
-  transform: rotate(45deg);
-}
-.date {
-  font-size: 12px;
-  opacity: 0.7;
-}
-.close {
-  opacity: 0.4;
-  float: right;
-  margin-right: 10px;
-  font-size: 18px;
-}
-.close:hover {
-  opacity: 1;
-  cursor: pointer;
-}
-.fire{
-  background-color: rgb(238, 66, 66); 
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 12px;
-    margin: 4px 2px;
-    cursor: pointer; 
-    font-weight: 500;
-}
-</style>
